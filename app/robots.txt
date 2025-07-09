@@ -3,4 +3,4 @@ Allow: /
 Disallow: /auth/
 Disallow: /api/
 Disallow: /boards/
-Sitemap: https://multiboard.dev/sitemap.xml
+Sitemap: https://www.multiboard.dev/sitemap.xml

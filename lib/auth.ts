@@ -11,7 +11,7 @@ import { getVerificationEmailContent } from "@/lib/email/verification";
 
 const FROM_EMAIL = process.env.FROM_EMAIL || "delivered@resend.dev";
 const SITE_NAME = "MULTIBOARD";
-const EMAIL_LINK_BASE_URL = process.env.BETTER_AUTH_URL || "https://multiboard.dev";
+const EMAIL_LINK_BASE_URL = process.env.BETTER_AUTH_URL || "https://www.multiboard.dev";
 
 
 export const auth = betterAuth({
