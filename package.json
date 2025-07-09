@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "zenstack generate && next build && prisma migrate deploy",
+    "build": "zenstack generate && next build",
     "start": "next start",
     "lint": "next lint",
     "prisma:studio": "prisma studio",
     "prisma:push": "prisma db push",
-    "zenstack:generate": "zenstack generate"
+    "zenstack:generate": "zenstack generate",
+    "vercel:build": "zenstack generate && next build && prisma migrate deploy"
   },
   "dependencies": {
     "@daveyplate/better-auth-ui": "^2.0.12",
