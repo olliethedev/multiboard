@@ -1,0 +1,249 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+plugin zod {
+  provider = '@core/zod'
+  compile = false
+  modelOnly = true
+  generateModels = ["Board", "Column", "Task"]
+}
+
+plugin hooks {
+  provider = "@zenstackhq/tanstack-query"
+  target = "react"
+  output = "./hooks/model"
+}
+
+plugin openapi {
+  provider = '@zenstackhq/openapi'
+  output = './app/api/openapi/openapi.json'
+  prefix = '/api/model'
+  securitySchemes = {
+    basic: { type: 'http', scheme: 'basic' },
+  }
+}
+
+/// Shape of the `auth()` function
+type Auth {
+  userId           String  @id
+  organizationId   String?
+  organizationRole String?
+
+  @@auth
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  sessions      Session[]
+  accounts      Account[]
+  members       Member[]
+  invitations  Invitation[]
+  assignedTasks Task[]    @relation("AssignedTasks")
+  ownedBoards  Board[]   @relation("BoardOwner")
+  userBoards   Board[]   @relation("UserBoards")
+
+  @@unique([email])
+  @@map("user")
+  @@openapi.ignore()
+  
+  // deny anonymous users
+  @@deny('all', auth() == null)
+  
+  // allow reading user info if user belongs to the same organization
+  @@allow('read', auth().organizationId != null && members?[organizationId == auth().organizationId])
+  
+  // allow users to read their own data
+  @@allow('all', auth().userId == id)
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  activeOrganizationId String?
+
+  @@unique([token])
+  @@map("session")
+  @@openapi.ignore()
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+  @@openapi.ignore()
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+  @@openapi.ignore()
+}
+
+model Organization {
+  id          String       @id
+  name        String
+  slug        String?
+  logo        String?
+  createdAt   DateTime
+  metadata    String?
+  members     Member[]
+  invitations Invitation[]
+  boards      Board[]
+
+  @@unique([slug])
+  @@map("organization")
+  @@openapi.ignore()
+}
+
+model Member {
+  id             String       @id
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           String
+  createdAt      DateTime
+
+  @@map("member")
+  @@openapi.ignore()
+}
+
+model Invitation {
+  id             String       @id
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String
+  role           String?
+  status         String
+  expiresAt      DateTime
+  inviterId      String
+  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+
+  @@map("invitation")
+  @@openapi.ignore()
+}
+
+model Board {
+  id             String   @id @default(cuid())
+  name           String
+  createdAt      DateTime @default(now())
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId String?  @default(auth().organizationId) @allow('update', false)
+  owner          User     @relation("BoardOwner", fields: [ownerId], references: [id])
+  ownerId        String   @default(auth().userId) @allow('update', false)
+  columns        Column[] @relation("BoardColumns")
+  users          User[]   @relation("UserBoards")
+
+  @@validate(length(name, 1, 512, 'Name must be between 1 and 512 characters'))
+
+  @@map("board")
+
+  // deny anonymous users
+  @@deny('all', auth() == null)
+
+  // deny access to boards that don't belong to the user's active organization
+  @@deny('all', auth().organizationId != organizationId)
+
+  // users can create boards for themselves
+  @@allow('create', auth().userId == ownerId)
+
+  // full access to: board owner, org owner, and org admins
+  @@allow('all', auth().userId == ownerId || auth().organizationRole == 'owner' || auth().organizationRole == 'admin')
+
+  // if the board belongs to an org, it's readable to all members
+  @@allow('read', organizationId != null)
+}
+
+model Column {
+  id        String   @id @default(cuid())
+  title     String
+  order     Int      
+  board     Board    @relation("BoardColumns", fields: [boardId], references: [id], onDelete: Cascade)
+  boardId   String
+  tasks     Task[]   @relation("ColumnTasks")
+
+  @@map("column")
+
+  // full access if the parent Board allows full access
+  @@allow('create', check(board, 'create'))
+  @@allow('read', check(board, 'read'))
+  @@allow('update', check(board, 'update'))
+  @@allow('delete', check(board, 'delete'))
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  priority    Priority @default(MEDIUM)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  order       Int      
+  column      Column   @relation("ColumnTasks", fields: [columnId], references: [id], onDelete: Cascade)
+  columnId    String
+  assignee    User?    @relation("AssignedTasks", fields: [assigneeId], references: [id])
+  assigneeId  String?
+  completedAt DateTime?
+  isArchived  Boolean  @default(false)
+
+  @@map("task")
+
+  // full access if the parent Column allows access
+  @@allow('create', check(column, 'create'))
+  @@allow('read', check(column, 'read'))
+  @@allow('update', check(column, 'update'))
+  @@allow('delete', check(column, 'delete'))
+}
