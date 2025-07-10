@@ -7,6 +7,7 @@ import {
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
 import { LayoutDashboard, Menu, Slash } from "lucide-react";
+import { Suspense } from "react";
 
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
@@ -76,15 +77,17 @@ function MobileMenu() {
                 <h3 className="text-sm font-medium text-muted-foreground">
                   Organization
                 </h3>
-                <OrganizationSwitcher
-                  variant="secondary"
-                  className="w-full h-auto"
-                  size="lg"
-                  onSetActive={(activeOrganization) => {
-                    console.log(activeOrganization);
-                    router.push("/boards");
-                  }}
-                />
+                <Suspense fallback={<div className="h-10 w-full bg-secondary rounded animate-pulse" />}>
+                  <OrganizationSwitcher
+                    variant="secondary"
+                    className="w-full h-auto"
+                    size="lg"
+                    onSetActive={(activeOrganization) => {
+                      console.log(activeOrganization);
+                      router.push("/boards");
+                    }}
+                  />
+                </Suspense>
               </div>
             )}
 
@@ -93,7 +96,9 @@ function MobileMenu() {
               <h3 className="text-sm font-medium text-muted-foreground">
                 User
               </h3>
-              <UserButton size="lg" variant="secondary" className="w-full" />
+              <Suspense fallback={<div className="h-10 w-full bg-secondary rounded animate-pulse" />}>
+                <UserButton size="lg" variant="secondary" className="w-full" />
+              </Suspense>
             </div>
 
             {/* Navigation Links */}
@@ -155,14 +160,16 @@ function DesktopMenu() {
         <>
           <div className="hidden md:flex items-center gap-1 ml-2 text-muted-foreground">
             <Slash className="size-7 -rotate-12" />
-            <OrganizationSwitcher
-              className="h-auto"
-              variant="secondary"
-              onSetActive={(activeOrganization) => {
-                console.log(activeOrganization);
-                router.push("/boards");
-              }}
-            />
+            <Suspense fallback={<div className="h-8 w-32 bg-secondary rounded animate-pulse" />}>
+              <OrganizationSwitcher
+                className="h-auto"
+                variant="secondary"
+                onSetActive={(activeOrganization) => {
+                  console.log(activeOrganization);
+                  router.push("/boards");
+                }}
+              />
+            </Suspense>
           </div>
         </>
       )}
@@ -188,7 +195,9 @@ function DesktopMenu() {
         <GitHubButton className="rounded-full w-8 h-8 min-w-8 min-h-8 flex items-center justify-center" />
 
         <ModeToggle />
-        <UserButton variant="secondary" size="icon" />
+        <Suspense fallback={<div className="h-8 w-8 bg-secondary rounded-full animate-pulse" />}>
+          <UserButton variant="secondary" size="icon" />
+        </Suspense>
       </div>
     </>
   );

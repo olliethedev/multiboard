@@ -7,12 +7,15 @@ import { ThemeProvider } from "next-themes";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
+import { Suspense } from "react";
 import { Toaster } from "sonner";
 
 import { authClient } from "@/lib/auth-client";
 import { getQueryClient } from "@/lib/get-query-client";
 import { Provider as ZenStackProvider } from "@/hooks/model";
 import { uploadImage } from "@/lib/upload";
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
+import { ModalsView } from "@/components/boards/modals/modals-view";
 
 export function Providers({ children }: { children: ReactNode }) {
   const queryClient = getQueryClient();
@@ -61,9 +64,13 @@ export function Providers({ children }: { children: ReactNode }) {
               }}
               emailVerification={true}
             >
-              {children}
-
-              <Toaster />
+              <NuqsAdapter>
+                {children}
+                <Suspense fallback={null}>
+                  <ModalsView />
+                </Suspense>
+                <Toaster />
+              </NuqsAdapter>
             </AuthUIProviderTanstack>
           </ThemeProvider>
         </AuthQueryProvider>
