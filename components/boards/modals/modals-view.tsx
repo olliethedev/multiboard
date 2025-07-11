@@ -9,7 +9,7 @@ import { useParams, useRouter } from "next/navigation";
 import { AddColumnForm } from "@/components/boards/forms/add-column-form";
 import { DeleteColumnForm } from "@/components/boards/forms/delete-column-form";
 import { EditColumnForm } from "@/components/boards/forms/edit-column-form";
-import { AddTaskForm, EditTaskForm } from "@/components/boards/forms/task-forms";
+import { AddTaskForm, EditTaskActions, EditTaskForm } from "@/components/boards/forms/task-forms";
 
 type ModalConfig = {
   title: string;
@@ -25,6 +25,13 @@ type ModalConfig = {
     columnId?: string;
     taskId?: string;
   }) => React.ReactElement;
+  actions?: React.ReactNode | ((props: {
+    onClose: () => void;
+    onSuccess: (param?: string) => void;
+    boardId?: string;
+    columnId?: string;
+    taskId?: string;
+  }) => React.ReactNode);
 };
 
 const modalConfigs: Record<string, ModalConfig> = {
@@ -114,6 +121,9 @@ const modalConfigs: Record<string, ModalConfig> = {
     component: ({ onClose, taskId, columnId, boardId }) => (
       <EditTaskForm taskId={taskId!} columnId={columnId!} boardId={boardId!} onClose={onClose} onSuccess={onClose} />
     ),
+    actions: ({ taskId, onSuccess }) => (
+      <EditTaskActions taskId={taskId!} onSuccess={onSuccess} />
+    ),
   },
 };
 
@@ -178,11 +188,22 @@ export function ModalsView() {
 
   const ModalWrapper = config.isAlert ? CommonAlertModal : CommonModal;
 
+  const renderedActions = typeof config.actions === 'function' 
+    ? config.actions({
+        onClose: closeModal,
+        onSuccess: successCallback,
+        boardId: selectedBoardId as string,
+        columnId: modalState.selectedColumnId,
+        taskId: modalState.selectedTaskId,
+      })
+    : config.actions;
+
   return (
     <ModalWrapper
       modalType={modalState.openModalType}
       title={config.title}
       description={config.description}
+      actions={renderedActions}
     >
       {config.component({
         onClose: closeModal,

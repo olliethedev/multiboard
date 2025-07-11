@@ -16,6 +16,7 @@ interface CommonAlertModalProps {
   description: string;
   children: React.ReactNode;
   modalType?: QueryModalState["openModalType"];
+  actions?: React.ReactNode;
 }
 
 export function CommonAlertModal({
@@ -23,6 +24,7 @@ export function CommonAlertModal({
   description,
   children,
   modalType,
+  actions,
 }: CommonAlertModalProps) {
   const { modalState, closeQueryModal } = useModalQuery();
 
@@ -42,7 +44,7 @@ export function CommonAlertModal({
     <AlertDialog open={isOpen} onOpenChange={handleOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogTitle className="flex items-center gap-2">{title} {actions}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         {children}

@@ -6,6 +6,7 @@ import {
   TaskCreateSchema,
   TaskUpdateSchema,
 } from "@zenstackhq/runtime/zod/models";
+import { Check, Copy, MoreVertical, Share, Trash2 } from "lucide-react";
 import { Column, Priority, Task, User } from "@zenstackhq/runtime/models";
 import { z } from "zod";
 import {
@@ -23,14 +24,41 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import SearchSelect from "@/components/search-select";
-import { useMemo, memo } from "react";
+import { useMemo, memo, useState } from "react";
 import AutoForm, { AutoFormSubmit } from "@/components/ui/auto-form";
 import { useActiveOrganization, useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
-import { useCreateTask, useUpdateTask } from "@/hooks/model/task";
+import { useCreateTask, useUpdateTask, useDeleteTask } from "@/hooks/model/task";
 import { FIND_UNIQUE_BOARD } from "@/lib/constants";
 import { useFindUniqueBoard } from "@/hooks/model/board";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export type ColumnWithTasks = Column & {
   tasks: (Task & {
@@ -265,6 +293,156 @@ export const EditTaskForm = memo(
   EditTaskFormComponent,
   editTaskFormPropsAreEqual
 );
+
+type EditTaskActionsProps = {
+  taskId: string;
+  onSuccess: () => void;
+};
+
+export function EditTaskActions({ taskId, onSuccess }: EditTaskActionsProps) {
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const {
+    mutateAsync: deleteTask,
+    isPending: isDeletingTask,
+    error: deleteTaskError,
+  } = useDeleteTask({
+    optimisticUpdate: false,
+  });
+
+  const currentUrl =
+    typeof window !== "undefined"
+      ? window.location.href
+      : "";
+
+  const handleCopyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(currentUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy URL:", err);
+    }
+  };
+
+  const handleDeleteTask = async () => {
+    try {
+      await deleteTask({
+        where: { id: taskId },
+      });
+      toast.success("Task deleted successfully");
+      onSuccess();
+      setDeleteDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to delete task:", error);
+    }
+  };
+
+  return (
+    <div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <MoreVertical className="h-4 w-4" />
+            <span className="sr-only">Open menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => setShareDialogOpen(true)}>
+            <Share className="mr-2 h-4 w-4" />
+            Share
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => setDeleteDialogOpen(true)}
+            className="text-red-600 focus:text-red-600"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Share Dialog */}
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Share Task</DialogTitle>
+            <DialogDescription>
+              Copy the link below to share this task with others.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center space-x-2">
+            <div className="grid flex-1 gap-2">
+              <Label htmlFor="link" className="sr-only">
+                Link
+              </Label>
+              <Input
+                id="link"
+                defaultValue={currentUrl}
+                readOnly
+                className="h-9"
+              />
+            </div>
+            <Button
+              type="submit"
+              size="sm"
+              className="px-3"
+              onClick={handleCopyUrl}
+            >
+              <span className="sr-only">Copy</span>
+              {copied ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          <DialogFooter className="sm:justify-start">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setShareDialogOpen(false)}
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Alert Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              task and remove all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {deleteTaskError && (
+            <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+              {deleteTaskError.message ||
+                "Failed to delete task. Please try again."}
+            </div>
+          )}
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeletingTask}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteTask}
+              disabled={isDeletingTask}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeletingTask ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
 
 function createTaskFieldConfig(
   columns: ColumnWithTasks[],

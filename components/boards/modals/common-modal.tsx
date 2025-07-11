@@ -16,6 +16,7 @@ interface CommonModalProps {
   isOpen?: boolean;
   setIsOpen?: (isOpen: boolean) => void;
   modalType?: QueryModalState["openModalType"];
+  actions?: React.ReactNode;
 }
 
 export function CommonModal({
@@ -23,6 +24,7 @@ export function CommonModal({
   description,
   children,
   modalType,
+  actions,
 }: CommonModalProps) {
   const { modalState, closeQueryModal } = useModalQuery();
 
@@ -42,7 +44,7 @@ export function CommonModal({
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[600px] overflow-x-hidden overflow-y-scroll max-h-screen">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">{title} {actions}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         {children}
