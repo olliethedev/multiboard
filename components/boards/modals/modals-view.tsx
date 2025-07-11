@@ -4,11 +4,12 @@ import { useModalQuery } from "@/lib/use-modal-query";
 import { AddBoardForm } from "@/components/boards/forms/add-board-form";
 import { DeleteBoardForm } from "@/components/boards/forms/delete-board-form";
 import { EditBoardForm } from "@/components/boards/forms/edit-board-form";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AddColumnForm } from "@/components/boards/forms/add-column-form";
 import { DeleteColumnForm } from "@/components/boards/forms/delete-column-form";
 import { EditColumnForm } from "@/components/boards/forms/edit-column-form";
+import { AddTaskForm, EditTaskForm } from "@/components/boards/forms/task-forms";
 
 type ModalConfig = {
   title: string;
@@ -22,6 +23,7 @@ type ModalConfig = {
     onSuccess: (param?: string) => void;
     boardId?: string;
     columnId?: string;
+    taskId?: string;
   }) => React.ReactElement;
 };
 
@@ -68,7 +70,11 @@ const modalConfigs: Record<string, ModalConfig> = {
     description: "Edit the column.",
     requiresColumnId: true,
     component: ({ onClose, columnId }) => (
-      <EditColumnForm columnId={columnId!} onClose={onClose} onSuccess={onClose} />
+      <EditColumnForm
+        columnId={columnId!}
+        onClose={onClose}
+        onSuccess={onClose}
+      />
     ),
   },
   "delete-column": {
@@ -85,6 +91,30 @@ const modalConfigs: Record<string, ModalConfig> = {
       />
     ),
   },
+  "add-task": {
+    title: "Add Task",
+    description: "Add a new task to the column.",
+    requiresColumnId: true,
+    requiresBoardId: true,
+    component: ({ onClose, columnId, boardId }) => (
+      <AddTaskForm
+        columnId={columnId!}
+        boardId={boardId!}
+        onClose={onClose}
+        onSuccess={onClose}
+      />
+    ),
+  },
+  "edit-task": {
+    title: "Edit Task",
+    description: "Edit the task.",
+    requiresTaskId: true,
+    requiresColumnId: true,
+    requiresBoardId: true,
+    component: ({ onClose, taskId, columnId, boardId }) => (
+      <EditTaskForm taskId={taskId!} columnId={columnId!} boardId={boardId!} onClose={onClose} onSuccess={onClose} />
+    ),
+  },
 };
 
 export function ModalsView() {
@@ -97,16 +127,41 @@ export function ModalsView() {
     (boardId: string) => {
       router.push(`/boards/${boardId}`);
     },
-    [router, closeQueryModal]
+    [router]
   );
 
   const onDeleteBoardSuccess = useCallback(() => {
     router.push("/boards");
-  }, [router, closeQueryModal]);
+  }, [router]);
 
   const closeModal = useCallback(() => {
     closeQueryModal();
   }, [closeQueryModal]);
+
+  // Memoize the add board success callback that handles the param
+  const addBoardSuccessWithParam = useCallback(
+    (param?: string) => {
+      if (param) onAddBoardSuccess(param);
+    },
+    [onAddBoardSuccess]
+  );
+
+  // Memoize the delete board success callback wrapper
+  const deleteBoardSuccessWrapper = useCallback(() => {
+    onDeleteBoardSuccess();
+  }, [onDeleteBoardSuccess]);
+
+  // Memoize the success callback based on modal type
+  const successCallback = useMemo(() => {
+    switch (modalState.openModalType) {
+      case "add-board":
+        return addBoardSuccessWithParam;
+      case "delete-board":
+        return deleteBoardSuccessWrapper;
+      default:
+        return closeModal;
+    }
+  }, [modalState.openModalType, addBoardSuccessWithParam, deleteBoardSuccessWrapper, closeModal]);
 
   if (!modalState.openModalType) return null;
 
@@ -121,20 +176,6 @@ export function ModalsView() {
     return null;
   }
 
-  const getSuccessCallback = () => {
-    switch (modalState.openModalType) {
-      case "add-board":
-        return (param?: string) => {
-          if (param) onAddBoardSuccess(param);
-        };
-      case "delete-board":
-        return () => onDeleteBoardSuccess();
-
-      default:
-        return () => closeModal();
-    }
-  };
-
   const ModalWrapper = config.isAlert ? CommonAlertModal : CommonModal;
 
   return (
@@ -145,9 +186,10 @@ export function ModalsView() {
     >
       {config.component({
         onClose: closeModal,
-        onSuccess: getSuccessCallback(),
+        onSuccess: successCallback,
         boardId: selectedBoardId as string,
         columnId: modalState.selectedColumnId,
+        taskId: modalState.selectedTaskId,
       })}
     </ModalWrapper>
   );

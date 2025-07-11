@@ -313,6 +313,7 @@ function KanbanRoot<T>(props: KanbanRootProps<T>) {
       if (event.activatorEvent.defaultPrevented) return;
       setActiveId(event.active.id);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [kanbanProps.onDragStart],
   );
 
@@ -373,6 +374,7 @@ function KanbanRoot<T>(props: KanbanRootProps<T>) {
         hasMovedRef.current = true;
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [value, getColumn, getItemValue, onValueChange, kanbanProps.onDragOver],
   );
 
@@ -453,6 +455,7 @@ function KanbanRoot<T>(props: KanbanRootProps<T>) {
       setActiveId(null);
       hasMovedRef.current = false;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       value,
       getColumn,
@@ -472,6 +475,7 @@ function KanbanRoot<T>(props: KanbanRootProps<T>) {
       setActiveId(null);
       hasMovedRef.current = false;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [kanbanProps.onDragCancel],
   );
 
@@ -773,6 +777,7 @@ const KanbanColumn = React.forwardRef<HTMLDivElement, KanbanColumnProps>(
         transition,
         ...style,
       };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [transform, transition, style]);
 
     const items = React.useMemo(() => {

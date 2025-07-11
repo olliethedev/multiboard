@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useDeleteBoard, useFindUniqueBoard } from "@/hooks/model";
 import { FIND_UNIQUE_BOARD } from "@/lib/constants";
-import { Prisma } from "@zenstackhq/runtime/models";
 
 type Props = {
   boardId: string;
@@ -24,7 +23,7 @@ export function DeleteBoardForm({
 
   // Fetch board data to display the board name
   const { data: board } = useFindUniqueBoard(
-    FIND_UNIQUE_BOARD(boardId) as Prisma.BoardFindUniqueArgs,
+    FIND_UNIQUE_BOARD(boardId),
     { enabled: !!boardId, refetchOnMount: false }
   );
 

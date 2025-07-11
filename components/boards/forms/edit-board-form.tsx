@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import AutoForm, { AutoFormSubmit } from "@/components/ui/auto-form";
 import { BoardUpdateWithoutRefineSchema } from "@zenstackhq/runtime/zod/models";
 import { useUpdateBoard, useFindUniqueBoard } from "@/hooks/model";
-import { Prisma } from "@zenstackhq/runtime/models";
 import { FIND_UNIQUE_BOARD } from "@/lib/constants";
 import { toast } from "sonner";
 
@@ -30,7 +29,7 @@ export function EditBoardForm({
 
   const {
     data: board,
-  } = useFindUniqueBoard( FIND_UNIQUE_BOARD(boardId) as Prisma.BoardFindUniqueArgs, {
+  } = useFindUniqueBoard( FIND_UNIQUE_BOARD(boardId), {
     staleTime: 5 * 60 * 1000,
     refetchOnMount: false,
     refetchOnWindowFocus: false,

@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Column, Task, User } from "@zenstackhq/runtime/models";
 import { useModalQuery } from "@/lib/use-modal-query";
+import { UserAvatar } from "@daveyplate/better-auth-ui";
+import { format } from "date-fns";
 
 type ColumnWithTasks = Column & {
   tasks: (Task & {
@@ -28,8 +30,12 @@ type Props = {
 export const BoardColumnContent = React.memo(function BoardColumnContent({
   column,
 }: Props) {
-
-  const { openAddTaskModal, openEditColumnModal, openDeleteColumnModal, openEditTaskModal } = useModalQuery();
+  const {
+    openAddTaskModal,
+    openEditColumnModal,
+    openDeleteColumnModal,
+    openEditTaskModal,
+  } = useModalQuery();
   const hasTasks = column.tasks && column.tasks.length > 0;
 
   const handleAddTaskClick = () => {
@@ -45,8 +51,8 @@ export const BoardColumnContent = React.memo(function BoardColumnContent({
           </Button>
         </Kanban.ColumnHandle>
         <div className="flex items-center gap-2 flex-1">
-          <span className="font-semibold text-base">{column.title}</span>
-          <Badge variant="secondary" className="pointer-events-none rounded-sm">
+          <span className="font-bold text-lg">{column.title}</span>
+          <Badge variant="outline" className="pointer-events-none rounded-sm">
             {column.tasks?.length || 0}
           </Badge>
         </div>
@@ -90,8 +96,9 @@ export const BoardColumnContent = React.memo(function BoardColumnContent({
                         <GripVertical className="h-3 w-3" />
                       </Button>
                     </Kanban.ItemHandle>
-                    <span 
-                      className="line-clamp-1 font-medium text-sm flex-1 text-left cursor-pointer hover:text-primary"
+                    <span
+                      className="line-clamp-1 font-medium text-base flex-1 text-left cursor-pointer hover:text-primary"
+                      title={task.title}
                       onClick={() => openEditTaskModal(column.id, task.id)}
                     >
                       {task.title}
@@ -109,12 +116,15 @@ export const BoardColumnContent = React.memo(function BoardColumnContent({
                       {task.priority}
                     </Badge>
                   </div>
-                  
-                  <div className="flex items-center justify-between text-muted-foreground text-xs">
+
+                  <div className="flex items-center justify-between text-muted-foreground ">
                     {task.assignee ? (
                       <div className="flex items-center gap-1">
-                        <div className="size-2 rounded-full bg-primary/20" />
-                        <span className="line-clamp-1">
+                        <UserAvatar user={task.assignee} size="sm" />
+                        <span
+                          className="line-clamp-1 text-sm font-medium"
+                          title={task.assignee.name || task.assignee.email}
+                        >
                           {task.assignee.name || task.assignee.email}
                         </span>
                       </div>
@@ -125,7 +135,7 @@ export const BoardColumnContent = React.memo(function BoardColumnContent({
                       </div>
                     )}
                     <time className="text-[10px] tabular-nums">
-                      {task.createdAt.toLocaleDateString()}
+                      Created {format(task.createdAt, "MMM d")}
                     </time>
                   </div>
                 </div>
