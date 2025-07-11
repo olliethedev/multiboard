@@ -2,6 +2,16 @@
 
 **Streamline your workflow with intuitive task management and real-time collaboration. Built for teams who value simplicity and control.**
 
+## 🎨 Screenshots
+
+
+### Dark Mode
+![Multiboard Dark Mode](./public/example-dark.png)
+
+### Light Mode  
+![Multiboard Light Mode](./public/example-light.png)
+
+
 ## ✨ Why Open-Source Kanban?
 
 - **🔓 Complete Control**: Own your data, customize without limits, deploy anywhere
