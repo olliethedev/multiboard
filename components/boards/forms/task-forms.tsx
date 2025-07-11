@@ -223,6 +223,7 @@ const EditTaskFormComponent = ({
       completedAt: true,
       order: true,
     }).extend({
+      title: z.string(),
       columnId: z.string().default(columnId),
       priority: z
         .nativeEnum(Priority)

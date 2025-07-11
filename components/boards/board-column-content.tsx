@@ -88,7 +88,10 @@ export const BoardColumnContent = React.memo(function BoardColumnContent({
         {hasTasks ? (
           column.tasks.map((task) => (
             <Kanban.Item key={task.id} value={task.id} asChild>
-              <div className="rounded-md border bg-card p-3 shadow-xs cursor-pointer">
+              <div
+                className="rounded-md border bg-card p-3 shadow-xs cursor-pointer"
+                onClick={() => openEditTaskModal(column.id, task.id)}
+              >
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
                     <Kanban.ItemHandle asChild>
@@ -99,7 +102,6 @@ export const BoardColumnContent = React.memo(function BoardColumnContent({
                     <span
                       className="line-clamp-1 font-medium text-base flex-1 text-left cursor-pointer hover:text-primary"
                       title={task.title}
-                      onClick={() => openEditTaskModal(column.id, task.id)}
                     >
                       {task.title}
                     </span>
