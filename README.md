@@ -108,6 +108,11 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) to see your kanban boards!
 
+### 5. Create a blog post
+You must have a user with the role `admin` to create a blog post.
+Navigate to `/posts/new` to create a blog post.
+Admin users will see special UI related to blog posts, like editing the blog post, and draft posts.
+
 ## 📚 API Documentation
 
 Multiboard automatically generates comprehensive API documentation:
@@ -132,15 +137,17 @@ Multiboard automatically generates comprehensive API documentation:
 multiboard/
 ├── app/                   # Next.js app directory
 │   ├── boards/            # Kanban board pages
+│   ├── posts/             # Blog pages
 │   ├── api/               # API routes, auth, and OpenAPI docs
 │   └── auth/              # Authentication pages
 ├── components/            # React components
-│   ├── boards/           # Board-specific components
-│   ├── marketing/        # Landing page components
-│   └── ui/               # Reusable UI components
-├── hooks/                # Utility hooks and auto-generated React Query hooks
-├── lib/                  # Utility functions and configurations
-└── schema.zmodel         # ZenStack schema with access policies
+│   ├── boards/            # Board-specific components
+│   ├── marketing/         # Landing page components
+│   ├── posts/             # Blog components
+│   └── ui/                # Reusable UI components
+├── hooks/                 # Utility hooks and auto-generated React Query hooks
+├── lib/                   # Utility functions and configurations
+└── schema.zmodel          # ZenStack schema with access policies
 ```
 
 ## 🤝 Contributing
