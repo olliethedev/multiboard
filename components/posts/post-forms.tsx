@@ -258,6 +258,16 @@ const EditPostFormComponent = ({
     onSuccess();
   };
 
+  // Don't render the form until post data is loaded
+  if (!post) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-6 w-6 animate-spin" />
+        <span className="ml-2">Loading post...</span>
+      </div>
+    );
+  }
+
   return (
     <AutoForm
       className="space-y-4"
