@@ -74,6 +74,28 @@ const metadata = {
                     isDataModel: true,
                     isArray: true,
                     backLink: 'users',
+                }, authoredPosts: {
+                    name: "authoredPosts",
+                    type: "Post",
+                    isDataModel: true,
+                    isArray: true,
+                    backLink: 'author',
+                }, role: {
+                    name: "role",
+                    type: "String",
+                    isOptional: true,
+                }, banned: {
+                    name: "banned",
+                    type: "Boolean",
+                    isOptional: true,
+                }, banReason: {
+                    name: "banReason",
+                    type: "String",
+                    isOptional: true,
+                }, banExpires: {
+                    name: "banExpires",
+                    type: "DateTime",
+                    isOptional: true,
                 },
             }, uniqueConstraints: {
                 id: {
@@ -565,6 +587,165 @@ const metadata = {
                 },
             },
         },
+        tag: {
+            name: 'Tag', fields: {
+                id: {
+                    name: "id",
+                    type: "String",
+                    isId: true,
+                    attributes: [{ "name": "@default", "args": [] }],
+                }, name: {
+                    name: "name",
+                    type: "String",
+                }, slug: {
+                    name: "slug",
+                    type: "String",
+                }, color: {
+                    name: "color",
+                    type: "String",
+                    isOptional: true,
+                }, createdAt: {
+                    name: "createdAt",
+                    type: "DateTime",
+                    attributes: [{ "name": "@default", "args": [] }],
+                }, updatedAt: {
+                    name: "updatedAt",
+                    type: "DateTime",
+                    attributes: [{ "name": "@updatedAt", "args": [] }],
+                }, posts: {
+                    name: "posts",
+                    type: "PostTag",
+                    isDataModel: true,
+                    isArray: true,
+                    backLink: 'tag',
+                },
+            }, uniqueConstraints: {
+                id: {
+                    name: "id",
+                    fields: ["id"]
+                }, name: {
+                    name: "name",
+                    fields: ["name"]
+                }, slug: {
+                    name: "slug",
+                    fields: ["slug"]
+                },
+            },
+        },
+        postTag: {
+            name: 'PostTag', fields: {
+                id: {
+                    name: "id",
+                    type: "String",
+                    isId: true,
+                    attributes: [{ "name": "@default", "args": [] }],
+                }, post: {
+                    name: "post",
+                    type: "Post",
+                    isDataModel: true,
+                    backLink: 'tags',
+                    isRelationOwner: true,
+                    onDeleteAction: 'Cascade',
+                    foreignKeyMapping: { "id": "postId" },
+                }, postId: {
+                    name: "postId",
+                    type: "String",
+                    isForeignKey: true,
+                    relationField: 'post',
+                }, tag: {
+                    name: "tag",
+                    type: "Tag",
+                    isDataModel: true,
+                    backLink: 'posts',
+                    isRelationOwner: true,
+                    onDeleteAction: 'Cascade',
+                    foreignKeyMapping: { "id": "tagId" },
+                }, tagId: {
+                    name: "tagId",
+                    type: "String",
+                    isForeignKey: true,
+                    relationField: 'tag',
+                },
+            }, uniqueConstraints: {
+                id: {
+                    name: "id",
+                    fields: ["id"]
+                }, postId_tagId: {
+                    name: "postId_tagId",
+                    fields: ["postId", "tagId"]
+                },
+            },
+        },
+        post: {
+            name: 'Post', fields: {
+                id: {
+                    name: "id",
+                    type: "String",
+                    isId: true,
+                    attributes: [{ "name": "@default", "args": [] }],
+                }, title: {
+                    name: "title",
+                    type: "String",
+                }, content: {
+                    name: "content",
+                    type: "String",
+                }, excerpt: {
+                    name: "excerpt",
+                    type: "String",
+                }, featuredImage: {
+                    name: "featuredImage",
+                    type: "String",
+                    isOptional: true,
+                }, slug: {
+                    name: "slug",
+                    type: "String",
+                }, published: {
+                    name: "published",
+                    type: "Boolean",
+                    attributes: [{ "name": "@default", "args": [{ "value": false }] }],
+                }, publishedAt: {
+                    name: "publishedAt",
+                    type: "DateTime",
+                    isOptional: true,
+                }, createdAt: {
+                    name: "createdAt",
+                    type: "DateTime",
+                    attributes: [{ "name": "@default", "args": [] }],
+                }, updatedAt: {
+                    name: "updatedAt",
+                    type: "DateTime",
+                    attributes: [{ "name": "@updatedAt", "args": [] }],
+                }, author: {
+                    name: "author",
+                    type: "User",
+                    isDataModel: true,
+                    backLink: 'authoredPosts',
+                    isRelationOwner: true,
+                    foreignKeyMapping: { "id": "authorId" },
+                }, authorId: {
+                    name: "authorId",
+                    type: "String",
+                    attributes: [{ "name": "@default", "args": [] }],
+                    defaultValueProvider: $default$Post$authorId,
+                    isForeignKey: true,
+                    relationField: 'author',
+                }, tags: {
+                    name: "tags",
+                    type: "PostTag",
+                    isDataModel: true,
+                    isArray: true,
+                    backLink: 'post',
+                },
+            }, uniqueConstraints: {
+                id: {
+                    name: "id",
+                    fields: ["id"]
+                }, slug: {
+                    name: "slug",
+                    fields: ["slug"]
+                },
+            },
+        },
 
     },
     typeDefs: {
@@ -573,6 +754,10 @@ const metadata = {
                 userId: {
                     name: "userId",
                     type: "String",
+                }, userRole: {
+                    name: "userRole",
+                    type: "String",
+                    isOptional: true,
                 }, organizationId: {
                     name: "organizationId",
                     type: "String",
@@ -591,6 +776,8 @@ const metadata = {
         organization: ['Member', 'Invitation'],
         board: ['Column'],
         column: ['Task'],
+        tag: ['PostTag'],
+        post: ['PostTag'],
 
     },
     authModel: 'Auth'
@@ -602,6 +789,10 @@ function $default$Board$organizationId(user: any): unknown {
 }
 
 function $default$Board$ownerId(user: any): unknown {
+    return user?.userId;
+}
+
+function $default$Post$authorId(user: any): unknown {
     return user?.userId;
 }
 export default metadata;

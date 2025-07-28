@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { enhance } from '@zenstackhq/runtime';
 import { headers } from 'next/headers';
+// import { admin} from "@/lib/auth-permissions"
+import { adminAc } from "better-auth/plugins/admin/access";
 
 
 export async function getZenstackPrisma() {
@@ -31,9 +33,17 @@ export async function getZenstackPrisma() {
         }
     }
 
+    const hasAdminPermission = await auth.api.userHasPermission({
+        body: {
+            userId: session.userId,
+            permissions: adminAc.statements
+        },
+    });
+
     // create enhanced client with user context
     const userContext = {
         userId: session.userId,
+        userRole: hasAdminPermission.success? "admin" : "user",
         organizationId,
         organizationRole,
     };

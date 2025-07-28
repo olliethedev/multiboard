@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import { openAPI, organization } from "better-auth/plugins"
+import { openAPI, organization, admin } from "better-auth/plugins"
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { prisma } from '@/lib/prisma';
@@ -85,6 +85,7 @@ export const auth = betterAuth({
         nextCookies(),
 		openAPI({
 			disableDefaultReference: true,
-		})
+		}),
+		admin()
     ]
 });

@@ -34,6 +34,7 @@
 - **🔔 Smart Notifications**: Stay updated with intelligent notification system
 - **📊 Auto-Generated APIs**: Type-safe REST APIs with interactive documentation
 - **🚀 One-Click Deploy**: Easy deployment to Vercel or your own infrastructure
+- **📝 Blog Post Management**: Full CRUD operations for blog posts with rich text editing for site admin users
 
 ## 🛠️ Technology Stack
 

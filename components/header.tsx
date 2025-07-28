@@ -115,6 +115,12 @@ function MobileMenu() {
                     Boards
                   </Link>
                   <Link
+                    href="/posts"
+                    className="text-sm font-medium hover:underline py-2 px-3 hover:bg-secondary rounded-md transition-colors"
+                  >
+                    Posts
+                  </Link>
+                  <Link
                     href="/api/openapi/reference"
                     className="text-sm font-medium hover:underline py-2 px-3 hover:bg-secondary rounded-md transition-colors"
                   >
@@ -178,6 +184,9 @@ function DesktopMenu() {
         <div className="hidden md:flex items-center gap-4 flex-1 justify-center flex-wrap">
           <Link href="/boards" className="text-sm font-medium hover:underline">
             Boards
+          </Link>
+          <Link href="/posts" className="text-sm font-medium hover:underline">
+            Posts
           </Link>
           <Link
             href="/api/openapi/reference"

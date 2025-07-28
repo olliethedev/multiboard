@@ -18,7 +18,7 @@ plugin zod {
   provider = '@core/zod'
   compile = false
   modelOnly = true
-  generateModels = ["Board", "Column", "Task"]
+  generateModels = ["Board", "Column", "Task", "Post", "Tag", "PostTag"]
 }
 
 plugin hooks {
@@ -39,6 +39,7 @@ plugin openapi {
 /// Shape of the `auth()` function
 type Auth {
   userId           String  @id
+  userRole         String?
   organizationId   String?
   organizationRole String?
 
@@ -54,7 +55,7 @@ enum Priority {
 
 model User {
   id            String    @id
-  name          String
+  name          String    @allow('read', true, true)  // Allow anonymous users to read name field, this is used for blog authors
   email         String
   emailVerified Boolean
   image         String?
@@ -67,6 +68,12 @@ model User {
   assignedTasks Task[]    @relation("AssignedTasks")
   ownedBoards  Board[]   @relation("BoardOwner")
   userBoards   Board[]   @relation("UserBoards")
+  authoredPosts Post[]  @relation("AuthoredPosts")
+
+  role       String?
+  banned     Boolean?
+  banReason  String?
+  banExpires DateTime?
 
   @@unique([email])
   @@map("user")
@@ -246,4 +253,80 @@ model Task {
   @@allow('read', check(column, 'read'))
   @@allow('update', check(column, 'update'))
   @@allow('delete', check(column, 'delete'))
+}
+
+model Tag {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  color     String?   // Optional color for the tag
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  // Many-to-many relationship with posts
+  posts     PostTag[]
+
+  @@validate(length(name, 1, 50, 'Tag name must be between 1 and 50 characters'))
+  @@validate(length(slug, 1, 50, 'Tag slug must be between 1 and 50 characters'))
+
+  @@map("tag")
+
+  // Allow anyone to read tags
+  @@allow('read', true)
+  
+  // Only admins can create, update, or delete tags
+  @@allow('create,update,delete', auth() != null && auth().userRole == 'admin')
+}
+
+model PostTag {
+  id     String @id @default(cuid())
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId  String
+
+  @@unique([postId, tagId])
+  @@map("post_tag")
+
+  // Allow reading if the post is readable
+  @@allow('read', check(post, 'read'))
+  
+  // Allow managing post tags if you can manage the post
+  @@allow('create,update,delete', check(post, 'update'))
+}
+
+model Post {
+  id          String    @id @default(cuid())
+  title       String
+  content     String    // Rich text content
+  excerpt     String   // Short description/summary
+  featuredImage String?
+  slug        String    @unique // SEO-friendly URL
+  published   Boolean   @default(false) // Draft vs published state
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Author relationship
+  author      User      @relation("AuthoredPosts", fields: [authorId], references: [id])
+  authorId    String    @default(auth().userId) @allow('update', false)
+  
+  // Many-to-many relationship with tags
+  tags        PostTag[]
+
+  @@validate(length(title, 1, 255, 'Title must be between 1 and 255 characters'))
+  @@validate(length(slug, 1, 255, 'Slug must be between 1 and 255 characters'))
+  @@validate(length(content, 1, 500000, 'Content must be between 1 and 500000 characters'))
+  @@validate(length(excerpt, 1, 1000, 'Excerpt must be between 1 and 1000 characters'))
+
+  @@map("post")
+
+  // Allow anyone (anonymous + authenticated) to read published posts
+  @@allow('read', published)
+  
+  // Allow authors to manage their own posts
+  @@allow('all', auth() != null && auth().userId == authorId)
+  
+  // Admin users with blog permissions can do everything
+  @@allow('all', auth() != null && auth().userRole == 'admin')
 }
