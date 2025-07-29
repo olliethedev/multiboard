@@ -77,7 +77,11 @@ function MobileMenu() {
                 <h3 className="text-sm font-medium text-muted-foreground">
                   Organization
                 </h3>
-                <Suspense fallback={<div className="h-10 w-full bg-secondary rounded animate-pulse" />}>
+                <Suspense
+                  fallback={
+                    <div className="h-10 w-full bg-secondary rounded animate-pulse" />
+                  }
+                >
                   <OrganizationSwitcher
                     variant="secondary"
                     className="w-full h-auto"
@@ -96,39 +100,44 @@ function MobileMenu() {
               <h3 className="text-sm font-medium text-muted-foreground">
                 User
               </h3>
-              <Suspense fallback={<div className="h-10 w-full bg-secondary rounded animate-pulse" />}>
+              <Suspense
+                fallback={
+                  <div className="h-10 w-full bg-secondary rounded animate-pulse" />
+                }
+              >
                 <UserButton size="lg" variant="secondary" className="w-full" />
               </Suspense>
             </div>
 
             {/* Navigation Links */}
-            {user && (
-              <div className="space-y-2">
-                <h3 className="text-sm font-medium text-muted-foreground">
-                  Navigation
-                </h3>
-                <div className="flex flex-col gap-2">
+
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-muted-foreground">
+                Navigation
+              </h3>
+              <div className="flex flex-col gap-2">
+                {user && (
                   <Link
                     href="/boards"
                     className="text-sm font-medium hover:underline py-2 px-3 hover:bg-secondary rounded-md transition-colors"
                   >
                     Boards
                   </Link>
-                  <Link
-                    href="/posts"
-                    className="text-sm font-medium hover:underline py-2 px-3 hover:bg-secondary rounded-md transition-colors"
-                  >
-                    Posts
-                  </Link>
-                  <Link
-                    href="/api/openapi/reference"
-                    className="text-sm font-medium hover:underline py-2 px-3 hover:bg-secondary rounded-md transition-colors"
-                  >
-                    API
-                  </Link>
-                </div>
+                )}
+                <Link
+                  href="/posts"
+                  className="text-sm font-medium hover:underline py-2 px-3 hover:bg-secondary rounded-md transition-colors"
+                >
+                  Posts
+                </Link>
+                <Link
+                  href="/api/openapi/reference"
+                  className="text-sm font-medium hover:underline py-2 px-3 hover:bg-secondary rounded-md transition-colors"
+                >
+                  API
+                </Link>
               </div>
-            )}
+            </div>
 
             {/* Actions */}
             <div className="space-y-2">
@@ -166,7 +175,11 @@ function DesktopMenu() {
         <>
           <div className="hidden md:flex items-center gap-1 ml-2 text-muted-foreground">
             <Slash className="size-7 -rotate-12" />
-            <Suspense fallback={<div className="h-8 w-32 bg-secondary rounded animate-pulse" />}>
+            <Suspense
+              fallback={
+                <div className="h-8 w-32 bg-secondary rounded animate-pulse" />
+              }
+            >
               <OrganizationSwitcher
                 className="h-auto"
                 variant="secondary"
@@ -180,31 +193,34 @@ function DesktopMenu() {
         </>
       )}
       {/* Desktop Navigation */}
-      {user ? (
-        <div className="hidden md:flex items-center gap-4 flex-1 justify-center flex-wrap">
+
+      <div className="hidden md:flex items-center gap-4 flex-1 justify-center flex-wrap">
+        {user && (
           <Link href="/boards" className="text-sm font-medium hover:underline">
             Boards
           </Link>
-          <Link href="/posts" className="text-sm font-medium hover:underline">
-            Posts
-          </Link>
-          <Link
-            href="/api/openapi/reference"
-            className="text-sm font-medium hover:underline"
-          >
-            API
-          </Link>
-        </div>
-      ) : (
-        <div className="hidden md:flex items-center gap-4 flex-1 justify-center" />
-      )}
+        )}
+        <Link href="/posts" className="text-sm font-medium hover:underline">
+          Posts
+        </Link>
+        <Link
+          href="/api/openapi/reference"
+          className="text-sm font-medium hover:underline"
+        >
+          API
+        </Link>
+      </div>
 
       {/* Desktop Actions */}
       <div className="hidden md:flex items-center gap-2">
         <GitHubButton className="rounded-full w-8 h-8 min-w-8 min-h-8 flex items-center justify-center" />
 
         <ModeToggle />
-        <Suspense fallback={<div className="h-8 w-8 bg-secondary rounded-full animate-pulse" />}>
+        <Suspense
+          fallback={
+            <div className="h-8 w-8 bg-secondary rounded-full animate-pulse" />
+          }
+        >
           <UserButton variant="secondary" size="icon" />
         </Suspense>
       </div>

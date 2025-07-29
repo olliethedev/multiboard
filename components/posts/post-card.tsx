@@ -9,6 +9,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowRightIcon } from "lucide-react";
 import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function PostCard({
     post,
@@ -21,7 +22,7 @@ export function PostCard({
     const [imageError, setImageError] = useState(false);
   
     return (
-      <Card className="group hover:shadow-lg transition-shadow duration-200 h-full flex flex-col relative pt-0 pb-4">
+      <Card className="group hover:shadow-lg transition-shadow duration-200 h-full flex flex-col relative pt-0 pb-4 gap-2">
         {/* Featured Image or Placeholder */}
         <div className="relative h-48 w-full overflow-hidden rounded-t-xl bg-muted">
           {post.featuredImage && !imageError ? (
@@ -58,7 +59,7 @@ export function PostCard({
             </time>
           </div>
   
-          <CardTitle className="line-clamp-2 transition-colors">
+          <CardTitle className="line-clamp-2 transition-colors text-lg leading-tight">
             <Link href={`/posts/${post.slug}`} className="hover:underline">
               {post.title}
             </Link>
@@ -91,5 +92,28 @@ export function PostCard({
           </div>
         </CardFooter>
       </Card>
+    );
+  }
+
+  export function PostCardSkeleton() {
+    return (
+      <Card className="h-full">
+          <div className="relative h-48 w-full">
+            <Skeleton className="w-full h-full rounded-t-xl" />
+          </div>
+          <CardHeader>
+            <Skeleton className="h-4 w-24 mb-2" />
+            <Skeleton className="h-6 w-full mb-2" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-4 w-32" />
+          </CardContent>
+          <CardFooter>
+            <div className="flex items-center justify-between w-full">
+              <Skeleton className="h-5 w-16" />
+              <Skeleton className="h-8 w-20" />
+            </div>
+          </CardFooter>
+        </Card>
     );
   }
