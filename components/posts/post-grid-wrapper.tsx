@@ -1,4 +1,5 @@
 import { Footer } from "@/components/footer";
+import BlogSearch from "@/components/blog-search";
 
 interface PostGridWrapperProps {
     title: React.ReactNode;
@@ -6,7 +7,6 @@ interface PostGridWrapperProps {
     actions?: React.ReactNode;
     children: React.ReactNode;
 }
-
 
 export function PostGridWrapper({ title, description, actions, children }: PostGridWrapperProps) {
     return (
@@ -21,6 +21,9 @@ export function PostGridWrapper({ title, description, actions, children }: PostG
                             </p>
                         </div>
                         {actions}
+                    </div>
+                    <div className="flex justify-center pb-6">
+                        <BlogSearch />
                     </div>
                     {children}
                 </div>
