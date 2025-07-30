@@ -24,6 +24,7 @@ import { fileToBase64, getOutput, randomId } from "../utils"
 import { useThrottle } from "../hooks/use-throttle"
 import { toast } from "sonner"
 import { uploadImage } from "@/lib/upload"
+import { MarkdownClipboard } from "../extensions/markdown-clipboard"
 
 export interface UseMinimalTiptapEditorProps extends UseEditorOptions {
   value?: Content
@@ -47,7 +48,12 @@ const createExtensions = (placeholder: string) => [
     code: { HTMLAttributes: { class: "inline", spellcheck: "false" } },
     dropcursor: { width: 2, class: "ProseMirror-dropcursor border" },
   }),
-  Markdown,
+  Markdown.configure({
+    transformPastedText: true,
+    transformCopiedText: true,
+    linkify: true,
+  }),
+  MarkdownClipboard,
   Link,
   Underline,
   Image.configure({
