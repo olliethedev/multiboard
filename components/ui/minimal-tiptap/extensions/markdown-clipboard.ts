@@ -54,7 +54,14 @@ export const MarkdownClipboard = Extension.create({
                     clipboardTextSerializer: (slice) => {
                         try {
                             if (this.editor.storage.markdown?.serializer) {
-                                return this.editor.storage.markdown.serializer.serialize(slice.content);
+                                //return this.editor.storage.markdown.serializer.serialize(slice.content);
+                                // Get the serialized markdown
+                                let markdown = this.editor.storage.markdown.serializer.serialize(slice.content);
+                                
+                                // Resolve CSS variables in style attributes
+                                markdown = resolveCSSVariables(markdown);
+                                
+                                return markdown;
                             }
                             // Fallback to plain text
                             return slice.content.textBetween(0, slice.content.size);
@@ -77,4 +84,61 @@ function elementFromString(value: string) {
     const wrappedValue = `<body>${value}</body>`
 
     return new window.DOMParser().parseFromString(wrappedValue, 'text/html').body
+}
+
+function resolveCSSVariables(html: string): string {
+    // Create a temporary element to parse and resolve CSS variables
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    
+    // Find all elements with style attributes
+    const elementsWithStyles = tempDiv.querySelectorAll('[style]');
+    
+    elementsWithStyles.forEach((element) => {
+        const styleAttr = element.getAttribute('style');
+        if (!styleAttr) return;
+        
+        // Check if the style contains CSS variables
+        if (styleAttr.includes('var(')) {
+            // Apply the styles to a temporary element to get computed values
+            const tempElement = document.createElement('div');
+            tempElement.style.cssText = styleAttr;
+            document.body.appendChild(tempElement);
+            
+            try {
+                const computedStyle = window.getComputedStyle(tempElement);
+                let resolvedStyle = '';
+                
+                // Extract individual CSS properties from the style attribute
+                const cssProperties = styleAttr.split(';').filter(prop => prop.trim());
+                
+                for (const property of cssProperties) {
+                    const [key, value] = property.split(':').map(s => s.trim());
+                    if (!key || !value) continue;
+                    
+                    // Get the computed value for this property
+                    const computedValue = computedStyle.getPropertyValue(key);
+                    
+                    if (computedValue && computedValue !== value) {
+                        // Use computed value if it's different (i.e., CSS var was resolved)
+                        resolvedStyle += `${key}: ${computedValue}; `;
+                    } else {
+                        // Keep original value if no resolution occurred
+                        resolvedStyle += `${key}: ${value}; `;
+                    }
+                }
+                
+                // Update the element's style attribute
+                element.setAttribute('style', resolvedStyle.trim());
+                
+            } catch (error) {
+                console.warn('Failed to resolve CSS variables for element:', error);
+            } finally {
+                // Clean up temporary element
+                document.body.removeChild(tempElement);
+            }
+        }
+    });
+    
+    return tempDiv.innerHTML;
 }

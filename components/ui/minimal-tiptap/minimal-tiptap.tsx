@@ -22,7 +22,7 @@ export interface MinimalTiptapProps
   editorContentClassName?: string
 }
 
-const Toolbar = ({ editor }: { editor: Editor }) => (
+const Toolbar = ({ editor, output }: { editor: Editor; output?: "html" | "json" | "text" | "markdown" }) => (
   <div className="border-border flex h-12 shrink-0 overflow-x-auto border-b p-2">
     <div className="flex w-max items-center gap-px">
       <SectionOne editor={editor} activeLevels={[1, 2, 3, 4, 5, 6]} />
@@ -42,9 +42,12 @@ const Toolbar = ({ editor }: { editor: Editor }) => (
         mainActionCount={3}
       />
 
-      <Separator orientation="vertical" className="mx-2" />
-
-      <SectionThree editor={editor} />
+        {output !== "markdown" && (
+          <>
+            <Separator orientation="vertical" className="mx-2" />
+            <SectionThree editor={editor} />
+          </>
+        )}
 
       <Separator orientation="vertical" className="mx-2" />
 
@@ -70,11 +73,13 @@ export const MinimalTiptapEditor = ({
   onChange,
   className,
   editorContentClassName,
+  output = "html",
   ...props
 }: MinimalTiptapProps) => {
   const editor = useMinimalTiptapEditor({
     value,
     onUpdate: onChange,
+    output,
     ...props,
   })
 
@@ -91,7 +96,7 @@ export const MinimalTiptapEditor = ({
         className
       )}
     >
-      <Toolbar editor={editor} />
+      <Toolbar editor={editor} output={output} />
       <EditorContent
         editor={editor}
         className={cn("minimal-tiptap-editor", editorContentClassName)}

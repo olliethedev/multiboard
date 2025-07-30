@@ -36,7 +36,7 @@ export interface UseMinimalTiptapEditorProps extends UseEditorOptions {
   onBlur?: (content: Content) => void
 }
 
-const createExtensions = (placeholder: string) => [
+const createExtensions = (placeholder: string, output: "html" | "json" | "text" | "markdown") => [
   StarterKit.configure({
     horizontalRule: false,
     codeBlock: false,
@@ -48,12 +48,15 @@ const createExtensions = (placeholder: string) => [
     code: { HTMLAttributes: { class: "inline", spellcheck: "false" } },
     dropcursor: { width: 2, class: "ProseMirror-dropcursor border" },
   }),
+  ...(output === "markdown" ? [
   Markdown.configure({
     transformPastedText: true,
     transformCopiedText: true,
     linkify: true,
+    html: false
   }),
   MarkdownClipboard,
+  ] : []),
   Link,
   Underline,
   Image.configure({
@@ -197,7 +200,7 @@ export const useMinimalTiptapEditor = ({
   )
 
   const editor = useEditor({
-    extensions: createExtensions(placeholder),
+    extensions: createExtensions(placeholder, output),
     editorProps: {
       attributes: {
         autocomplete: "off",
