@@ -2,6 +2,12 @@
 
 **Streamline your workflow with intuitive task management and real-time collaboration. Built for teams who value simplicity and control.**
 
+---
+
+> **Multiboard is now part of [Better Stack](https://better-stack.ai/)** — ship full-stack features faster with production-ready plugins that generate database schemas, API routes, and pages for Next.js, TanStack Start, and React Router.
+
+---
+
 ## 🎨 Screenshots
 
 
