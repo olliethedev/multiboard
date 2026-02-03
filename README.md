@@ -55,7 +55,7 @@
 | **Scalar** | Beautiful API documentation | [scalar.com](https://guides.scalar.com/scalar/scalar-api-references/integrations/nextjs) |
 | **AutoForm** | Generate forms from Zod schemas | [github.com/vantezzen/autoform](https://github.com/vantezzen/autoform) |
 | **Minimal Tiptap** | Clean and minimal rich text editor | [github.com/Aslam97/shadcn-minimal-tiptap](https://github.com/Aslam97/shadcn-minimal-tiptap) |
-| **nuqs** | Type-safe search params state manager | [nuqs.47ng.com](https://nuqs.47ng.com/) |
+| **nuqs** | Type-safe search params state manager | [nuqs.dev](https://nuqs.dev/) |
 | **Vercel Blob** | Scalable file and image storage | [vercel.com/docs/vercel-blob](https://vercel.com/docs/vercel-blob) |
 | **Resend** | Modern email delivery platform | [resend.com](https://resend.com/) |
 | **DiceUI Kanban** | Beautiful kanban component library | [diceui.com/docs/components/kanban](https://www.diceui.com/docs/components/kanban) |
