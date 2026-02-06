@@ -4,7 +4,7 @@
 
 ---
 
-> **Multiboard is now part of [Better Stack](https://better-stack.ai/)** — ship full-stack features faster with production-ready plugins that generate database schemas, API routes, and pages for Next.js, TanStack Start, and React Router.
+> **Multiboard is now part of [BTST](https://better-stack.ai/)** — ship full-stack features faster with production-ready plugins that generate database schemas, API routes, and pages for Next.js, TanStack Start, and React Router.
 
 ---
 
